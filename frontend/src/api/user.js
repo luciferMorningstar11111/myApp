@@ -29,4 +29,6 @@ const followUser = (id) => api.post(`/api/v1/users/${id}/follow`);
 
 const unfollowUser = (id) => api.delete(`/api/v1/users/${id}/unfollow`);
 
-export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser };
+const myProfile = () => api.get("/api/v1/my_profile");
+
+export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser,myProfile };

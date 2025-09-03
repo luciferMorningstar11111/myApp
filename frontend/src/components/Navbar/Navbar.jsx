@@ -20,6 +20,12 @@ Users
       >
 Posts
       </button>
+       <button
+        onClick={() => navigate("/my_profile")}
+        className="flex items-center text-gray-700 hover:text-gray-900"
+      >
+My Profile
+      </button>
       {/* New Post button */}
       <Link
         to="/createpost"

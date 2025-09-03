@@ -14,9 +14,7 @@ def index
     )
   }
 end
-
-
-
+ 
   def show
     user=User.find(params[:id])
     render json: user
@@ -48,6 +46,11 @@ end
     follow = current_user.active_follows.find_by(followed_id: @user.id)
     follow.destroy if follow
     render json: { message: "You unfollowed #{@user.name}" }
+  end
+
+  def my_profile
+
+    render json: {current_user: current_user, followers: current_user.followers, following: current_user.following}
   end
 
   private

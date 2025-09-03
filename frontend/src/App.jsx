@@ -8,6 +8,7 @@ import NewPost from './components/dashboard/newPost';
 import EditPost from './components/dashboard/editPost';
 import Navbar from './components/Navbar/Navbar';
 import UserList from './components/User/UserList';
+import UserProfile from './components/User/UserProfile';
 
 function App() {
   return (
@@ -15,6 +16,13 @@ function App() {
       
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/my_profile" element={
+          <ProtectedRoute>
+            <Navbar />
+          <UserProfile/>
+          </ProtectedRoute>
+        } 
+      />
       <Route path="/users" element={
           <ProtectedRoute>
             <Navbar />

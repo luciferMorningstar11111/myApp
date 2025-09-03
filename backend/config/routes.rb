@@ -15,6 +15,7 @@ namespace :api do
         delete :unfollow
   end
   end
+  get 'my_profile', to: 'users#my_profile'
 end
 end
 
