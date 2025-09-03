@@ -17,8 +17,6 @@ const NewPost = () => {
       return;
     }
 const postData = {post:{ title, description: content, scheduled_at: scheduledAt ? new Date(scheduledAt + ':00').toISOString():  null, }};
-
-
     setLoading(true);
     try {
       const data = await createPost(postData);
@@ -58,6 +56,15 @@ const postData = {post:{ title, description: content, scheduled_at: scheduledAt 
           onChange={(e) => setScheduledAt(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <button
+        type="button"
+          onClick={() => navigate(-1)}
+          className={`w-full py-2 rounded-lg text-white bg-green-500 hover:bg-green-600"
+          `}
+        >
+          Cancel
+        </button>
+        
         <button
           type="submit"
           disabled={loading}

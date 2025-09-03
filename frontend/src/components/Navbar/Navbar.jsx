@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
+import ProfileMenu from "./ProfileMenu";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -20,19 +21,14 @@ Users
       >
 Posts
       </button>
-       <button
-        onClick={() => navigate("/my_profile")}
-        className="flex items-center text-gray-700 hover:text-gray-900"
-      >
-My Profile
-      </button>
-      {/* New Post button */}
+      
       <Link
         to="/createpost"
         className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
       >
         New Post
       </Link>
+      <ProfileMenu />
     </nav>
   );
 };
