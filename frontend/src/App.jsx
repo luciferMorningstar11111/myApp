@@ -9,6 +9,7 @@ import EditPost from './components/dashboard/editPost';
 import Navbar from './components/Navbar/Navbar';
 import UserList from './components/User/UserList';
 import UserProfile from './components/User/UserProfile';
+import PostPage from './components/dashboard/PostPage';
 
 function App() {
   return (
@@ -52,6 +53,16 @@ function App() {
         element={
           <ProtectedRoute>
             <EditPost />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        exact
+        path="post/:id"
+        element={
+          <ProtectedRoute>
+            <Navbar />
+            <PostPage />
           </ProtectedRoute>
         }
       />
