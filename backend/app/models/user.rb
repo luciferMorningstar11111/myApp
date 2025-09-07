@@ -11,4 +11,5 @@ class User < ApplicationRecord
 
   has_many :passive_follows, class_name: "Follow", foreign_key: "followed_id"
   has_many :followers, through: :passive_follows, source: :follower
+  validates :is_public, inclusion: { in: [true, false] }
 end

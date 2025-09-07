@@ -1,18 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { myProfile } from "../../api/user";
+import { myProfile, updateVisibility } from "../../api/user";
 
 const UserProfile = () => {
   const [profile, setProfile] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
   const [modalList, setModalList] = useState([]);
+  const [isPublic, setIsPublic] = useState(true);
 
   const fetchProfile = async () => {
     try {
-      const response = await myProfile(); // API helper handles URL
-      setProfile(response.data);
+      const response = await myProfile(); // API helper
+      setProfile(response.data.current_user);
+      
+      setIsPublic(response.data.current_user.is_public);
     } catch (error) {
       console.error("Error fetching profile:", error);
+    }
+  };
+
+  const handleVisibilityChange = async () => {
+    const newVisibility = !isPublic;
+    setIsPublic(newVisibility); // optimistic UI
+    try {
+      await updateVisibility(newVisibility);
+    } catch (error) {
+      console.error("Failed to update visibility:", error);
+      setIsPublic(!newVisibility); // revert on error
     }
   };
 
@@ -33,7 +47,9 @@ const UserProfile = () => {
   }, []);
 
   if (!profile) {
-    return <div className="text-center mt-6 text-gray-500">Loading profile...</div>;
+    return (
+      <div className="text-center mt-6 text-gray-500">Loading profile...</div>
+    );
   }
 
   return (
@@ -45,19 +61,41 @@ const UserProfile = () => {
         <p className="text-gray-500">{profile.email}</p>
       </div>
 
+      {/* Profile Visibility Section */}
+      <div className="flex items-center justify-between mb-6 border rounded-lg p-4 bg-gray-50">
+        <div>
+          <p className="font-medium text-gray-800">Profile Visibility</p>
+          <p className="text-xs text-gray-500">
+            {isPublic ? "Your profile is Public" : "Your profile is Private"}
+          </p>
+        </div>
+        <button
+          onClick={handleVisibilityChange}
+          className={`w-14 h-7 flex items-center rounded-full transition duration-300 ${
+            isPublic ? "bg-green-500" : "bg-gray-400"
+          }`}
+        >
+          <div
+            className={`bg-white w-6 h-6 rounded-full shadow-md transform transition duration-300 ${
+              isPublic ? "translate-x-7" : "translate-x-0"
+            }`}
+          ></div>
+        </button>
+      </div>
+
       {/* Followers & Following Buttons */}
       <div className="flex justify-around mb-4">
         <button
           className="text-blue-600 font-semibold hover:underline"
           onClick={() => openModal("Followers", profile.followers)}
         >
-          Followers ({profile.followers.length})
+          Followers ({profile.followers?.length||0})
         </button>
         <button
           className="text-blue-600 font-semibold hover:underline"
           onClick={() => openModal("Following", profile.following)}
         >
-          Following ({profile.following.length})
+          Following ({profile.following?.length ||0})
         </button>
       </div>
 
