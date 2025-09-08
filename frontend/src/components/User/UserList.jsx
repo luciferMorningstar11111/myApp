@@ -8,6 +8,7 @@ const UserList = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       const response = await getAllUsers();
+      console.log(response);
       setUsers(response); 
     };
     fetchUsers();
@@ -17,9 +18,11 @@ const UserList = () => {
 
   return (
     <div>
-      {users.map((user) => 
-      <UserCard key={user.id} user={user} setUsers={setUsers} />
-      )}
+     {users
+  .filter((u) => !u.is_blocked)
+  .map((user) => (
+    <UserCard key={user.id} user={user} setUsers={setUsers} />
+  ))}
     </div>
   );
 };

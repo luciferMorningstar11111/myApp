@@ -5,15 +5,21 @@ class Api::V1::UsersController < ApplicationController
 def index
   users = User.where.not(id: current_user.id)
   render json: users.map { |user|
+    # Find the block record if it exists
+    block = current_user.blocks.find_by(blocked_id: user.id)
+
     user.as_json(only: [:id, :name, :email]).merge(
       is_following: current_user.following.exists?(user.id),
       followers: user.followers.map { |f| { id: f.id, name: f.name } },
       following: user.following.map { |f| { id: f.id, name: f.name } },
-      following_count: user.following.count,                           # ✅ comma added
-      current_user_id: current_user.id
+      following_count: user.following.count,
+      current_user_id: current_user.id,
+      is_blocked: block.present?,  # ✅ true if user is blocked
+      block_id: block&.id          # ✅ needed for unblock API
     )
   }
 end
+
  
   def show
     user=User.find(params[:id])

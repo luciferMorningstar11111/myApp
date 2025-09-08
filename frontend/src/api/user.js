@@ -31,4 +31,8 @@ const unfollowUser = (id) => api.delete(`/api/v1/users/${id}/unfollow`);
 
 const myProfile = () => api.get("/api/v1/my_profile");
 
-export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser,myProfile };
+const blockUser = (id) => api.post(`/api/v1/users/${id}/blocks`);
+
+const unblockUser = (userId,blockId) => api.delete(`/api/v1/users/${userId}/blocks/${blockId}`);
+
+export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser,myProfile , blockUser, unblockUser};
