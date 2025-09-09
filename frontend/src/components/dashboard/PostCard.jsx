@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { deletePost ,likePost,unlikePost} from "../../api/post";
+import { deletePost, likePost, unlikePost } from "../../api/post";
 
 const PostCard = ({ post, onDelete }) => {
   const [liked, setLiked] = useState(post.is_liked);
@@ -30,7 +30,11 @@ const PostCard = ({ post, onDelete }) => {
   return (
     <div className="bg-white shadow-md rounded-lg p-5 flex flex-col justify-between hover:shadow-xl transition duration-300">
       <div>
-        <h2 className="text-xl font-bold mb-2">{post.title}</h2>
+        <h2 className="text-xl font-bold mb-2">
+          <Link to={`/post/${post.id}`} className="hover:underline text-blue-600">
+            {post.title}
+          </Link>
+        </h2>
         <p className="text-gray-700 mb-2">{post.description}</p>
         <p className="text-gray-500 text-sm mb-2">By {post.user.name}</p>
         <p
