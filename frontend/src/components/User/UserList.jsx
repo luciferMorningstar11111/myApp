@@ -8,6 +8,7 @@ const UserList = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+
     const fetchUsers = async (term = "") => {
       setLoading(true);
       const response = await getAllUsers(term);
@@ -23,6 +24,13 @@ const UserList = () => {
   }, [searchTerm]);
 
   return (
+    <div>
+     {users
+  .filter((u) => !u.is_blocked)
+  .map((user) => (
+    <UserCard key={user.id} user={user} setUsers={setUsers} />
+  ))}
+
     <div className="p-4">
       {/* Search Input */}
       <div className="mb-4">

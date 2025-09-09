@@ -11,12 +11,17 @@ def index
   end
 
   render json: users.map { |user|
+    # Find the block record if it exists
+    block = current_user.blocks.find_by(blocked_id: user.id)
+
     user.as_json(only: [:id, :name, :email]).merge(
       is_following: current_user.following.exists?(user.id),
       followers: user.followers.map { |f| { id: f.id, name: f.name } },
       following: user.following.map { |f| { id: f.id, name: f.name } },
       following_count: user.following.count,
-      current_user_id: current_user.id
+      current_user_id: current_user.id,
+      is_blocked: block.present?,  # ✅ true if user is blocked
+      block_id: block&.id          # ✅ needed for unblock API
     )
   }
 end

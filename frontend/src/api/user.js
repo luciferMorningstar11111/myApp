@@ -29,8 +29,16 @@ const unfollowUser = (id) => api.delete(`/api/v1/users/${id}/unfollow`);
 
 const myProfile = () => api.get("/api/v1/my_profile");
 
+
+const blockUser = (id) => api.post(`/api/v1/users/${id}/blocks`);
+
+const unblockUser = (userId,blockId) => api.delete(`/api/v1/users/${userId}/blocks/${blockId}`);
+
+export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser,myProfile , blockUser, unblockUser};
+
 const updateVisibility = (isPublic) => {
   return api.patch("/api/v1/users/update-visibility", {user: { is_public: isPublic }});
 }
 
 export { getAllUsers, getUser, getFollowers, getFollowing, followUser, unfollowUser,myProfile ,updateVisibility};
+

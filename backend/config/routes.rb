@@ -11,12 +11,22 @@ end
 namespace :api do
   namespace :v1 do
     resources :users, only: [:index,  :create,:show, :update , :destroy] do
+
+      resources :blocks, only: [:create, :destroy]
+     
+      member do
+           get :followers
+
      member do
         get :followers
+
         get :following
         post :follow
         delete :unfollow
      end
+
+   end
+
 
      collection do
         patch :update_visibility
@@ -25,8 +35,9 @@ namespace :api do
 
    end
 
+
   get 'my_profile', to: 'users#my_profile'
-end
+  end
 end
 
 
