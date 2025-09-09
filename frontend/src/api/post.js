@@ -10,3 +10,7 @@ export const getPost = (id) => api.get(`/posts/${id}`);
 export const updatePost = (id, postData) => api.put(`/posts/${id}`, postData);
 
 export const deletePost = (id) => api.delete(`/posts/${id}`);
+
+export const likePost = (id) => api.post(`/posts/${id}/like`);
+
+export const unlikePost = (id) => api.delete(`/posts/${id}/like`);
