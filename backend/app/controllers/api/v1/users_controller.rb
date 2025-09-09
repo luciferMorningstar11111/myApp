@@ -40,8 +40,6 @@ def follow
   end
 end
 
-
-
   def unfollow
     follow = current_user.active_follows.find_by(followed_id: @user.id)
     follow.destroy if follow
@@ -53,9 +51,22 @@ end
     render json: {current_user: current_user, followers: current_user.followers, following: current_user.following}
   end
 
+  def update
+    if current_user.update(user_params)
+      render json: current_user
+    else
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity 
+    end
+  end
+
+
   private
 
   def set_user
     @user = User.find(params[:id])
+  end
+
+  def user_params
+    params.require(:user).permit(:name, :email, :is_public)
   end
 end

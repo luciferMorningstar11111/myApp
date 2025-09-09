@@ -17,7 +17,14 @@ namespace :api do
         post :follow
         delete :unfollow
      end
+
+     collection do
+        patch :update_visibility
+      end
+  end
+
    end
+
   get 'my_profile', to: 'users#my_profile'
 end
 end
