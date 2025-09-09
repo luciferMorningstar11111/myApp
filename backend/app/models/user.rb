@@ -12,4 +12,11 @@ class User < ApplicationRecord
   has_many :passive_follows, class_name: "Follow", foreign_key: "followed_id"
   has_many :followers, through: :passive_follows, source: :follower
   validates :is_public, inclusion: { in: [true, false] }
+
+
+  has_many :likes, dependent: :destroy
+  has_many :liked_posts, through: :likes, source: :post
+   
+  has_many :comments, dependent: :destroy
+
 end
