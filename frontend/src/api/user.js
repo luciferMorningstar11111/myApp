@@ -1,15 +1,13 @@
 // src/api/users.js
 import api from "./axiosInstance";
 
-const getAllUsers = async () => {
-  try {
-    const response = await api.get("/api/v1/users"); 
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return null;
+const getAllUsers = (searchTerm = "") => {
+  if (searchTerm) {
+    return api.get(`/api/v1/users?q=${encodeURIComponent(searchTerm)}`).then(res => res.data);
   }
+  return api.get("/api/v1/users").then(res => res.data);
 };
+
 
 const getUser = async (id) => {
   try {

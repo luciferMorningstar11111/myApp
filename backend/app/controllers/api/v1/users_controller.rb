@@ -4,16 +4,23 @@ class Api::V1::UsersController < ApplicationController
 
 def index
   users = User.where.not(id: current_user.id)
+
+  if params[:q].present?
+    search_term = "%#{params[:q]}%"
+    users = users.where("name LIKE ? OR email LIKE ?", search_term, search_term)
+  end
+
   render json: users.map { |user|
     user.as_json(only: [:id, :name, :email]).merge(
       is_following: current_user.following.exists?(user.id),
       followers: user.followers.map { |f| { id: f.id, name: f.name } },
       following: user.following.map { |f| { id: f.id, name: f.name } },
-      following_count: user.following.count,                           # ✅ comma added
+      following_count: user.following.count,
       current_user_id: current_user.id
     )
   }
 end
+
  
   def show
     user=User.find(params[:id])
