@@ -17,7 +17,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_08_142821) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
   create_table "comments", force: :cascade do |t|
     t.integer "user_id", null: false
     t.integer "post_id", null: false

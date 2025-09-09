@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :passive_follows, class_name: "Follow", foreign_key: "followed_id"
   has_many :followers, through: :passive_follows, source: :follower
 
+
   has_many :blocks, foreign_key: :blocker_id, dependent: :destroy
 
   # All users this user has blocked
@@ -21,4 +22,12 @@ class User < ApplicationRecord
   def blocked?(user)
     blocked_users.include?(user)
   end
+  validates :is_public, inclusion: { in: [true, false] }
+
+
+  has_many :likes, dependent: :destroy
+  has_many :liked_posts, through: :likes, source: :post
+   
+  has_many :comments, dependent: :destroy
+
 end

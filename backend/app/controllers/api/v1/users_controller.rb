@@ -4,6 +4,12 @@ class Api::V1::UsersController < ApplicationController
 
 def index
   users = User.where.not(id: current_user.id)
+
+  if params[:q].present?
+    search_term = "%#{params[:q]}%"
+    users = users.where("name LIKE ? OR email LIKE ?", search_term, search_term)
+  end
+
   render json: users.map { |user|
     # Find the block record if it exists
     block = current_user.blocks.find_by(blocked_id: user.id)
@@ -46,8 +52,6 @@ def follow
   end
 end
 
-
-
   def unfollow
     follow = current_user.active_follows.find_by(followed_id: @user.id)
     follow.destroy if follow
@@ -59,9 +63,22 @@ end
     render json: {current_user: current_user, followers: current_user.followers, following: current_user.following}
   end
 
+  def update
+    if current_user.update(user_params)
+      render json: current_user
+    else
+      render json: { errors: current_user.errors.full_messages }, status: :unprocessable_entity 
+    end
+  end
+
+
   private
 
   def set_user
     @user = User.find(params[:id])
+  end
+
+  def user_params
+    params.require(:user).permit(:name, :email, :is_public)
   end
 end

@@ -1,10 +1,26 @@
 class PostsController < ApplicationController
   before_action :authenticate_user!
 
-  def index
-    posts = Post.published.includes(:user)
-    render json: posts.as_json(include: { user: { only: [:id, :name, :email] } })
-  end
+def index
+  posts = Post.published.includes(:user, :likes)
+
+  render json: posts.map { |post|
+    {
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      scheduled_at: post.scheduled_at,
+      published: post.published,
+      user: {
+        id: post.user.id,
+        name: post.user.name,
+        email: post.user.email
+      },
+      like_count: post.likes.count,
+      is_liked: current_user.likes.exists?(post_id: post.id)
+    }
+  }
+end
 
   def show
     post = Post.find(params[:id])
