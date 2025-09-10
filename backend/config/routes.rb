@@ -4,15 +4,15 @@ Rails.application.routes.draw do
     registrations: 'users/registrations'
   }
 
-  resources :posts, only: [:index, :create, :show, :update, :destroy] do
-    resource :like, only: [:create, :destroy]
-    resources :comments, only: [:index, :create, :update, :destroy]
+  resources :posts, only: %i[index create show update destroy] do
+    resource :like, only: %i[create destroy]
+    resources :comments, only: %i[index create update destroy]
   end
 
   namespace :api do
     namespace :v1 do
-      resources :users, only: [:index, :create, :show, :update, :destroy] do
-        resources :blocks, only: [:create, :destroy]
+      resources :users, only: %i[index create show update destroy] do
+        resources :blocks, only: %i[create destroy]
 
         member do
           get :followers
@@ -27,6 +27,12 @@ Rails.application.routes.draw do
       end
 
       get 'my_profile', to: 'users#my_profile'
+    end
+  end
+
+  resources :notifications, only: [:index] do
+    collection do
+      post :mark_all_as_read
     end
   end
 end
