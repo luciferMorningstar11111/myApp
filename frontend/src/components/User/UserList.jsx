@@ -23,38 +23,34 @@ const UserList = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  return (
-    <div>
-     {users
-  .filter((u) => !u.is_blocked)
-  .map((user) => (
-    <UserCard key={user.id} user={user} setUsers={setUsers} />
-  ))}
+ return (
+  <div className="p-4">
+    {/* Search Input */}
+    <div className="mb-4">
+      <input
+        type="text"
+        placeholder="Search by name or username..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring focus:border-blue-300"
+      />
+    </div>
 
-    <div className="p-4">
-      {/* Search Input */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search by name or username..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring focus:border-blue-300"
-        />
-      </div>
-
-      {/* Loading State */}
-      {loading ? (
-        <p className="text-gray-500 text-center">Loading...</p>
-      ) : users.length > 0 ? (
-        users.map((user) => (
+    {/* Loading State */}
+    {loading ? (
+      <p className="text-gray-500 text-center">Loading...</p>
+    ) : users.filter((u) => !u.is_blocked).length > 0 ? (
+      users
+        .filter((u) => !u.is_blocked)
+        .map((user) => (
           <UserCard key={user.id} user={user} setUsers={setUsers} />
         ))
-      ) : (
-        <p className="text-gray-500 text-center">No users found</p>
-      )}
-    </div>
-  );
+    ) : (
+      <p className="text-gray-500 text-center">No users found</p>
+    )}
+  </div>
+);
+
 };
 
 export default UserList;
