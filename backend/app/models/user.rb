@@ -32,4 +32,22 @@ class User < ApplicationRecord
   end
 
   validates :is_public, inclusion: { in: [true, false] }
+
+
+ def can_see?(other_user)
+  return false if blocks.exists?(blocked_id: other_user.id)      # I blocked them
+  return false if other_user.blocks.exists?(blocked_id: self.id) # They blocked me
+  true
+end
+
+def can_view_posts?(other_user)
+  return true if self == other_user               # Always see own posts
+  return false unless can_see?(other_user)        # Block check first
+
+  return true if other_user.is_public?            # Public profile
+  return true if other_user.followers.exists?(id: self.id) # Private but I follow
+
+  false
+end
+
 end
