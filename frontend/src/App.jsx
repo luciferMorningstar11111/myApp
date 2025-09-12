@@ -10,6 +10,8 @@ import Navbar from './components/Navbar/Navbar';
 import UserList from './components/User/UserList';
 import UserProfile from './components/User/UserProfile';
 import PostPage from './components/dashboard/PostPage';
+import ConversationPage from './components/User/ConversationPage';
+import InboxPage from './components/User/inboxPage';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
       
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+        <Route path="/conversations/:id" element={<ConversationPage />} />
+        <Route exact path="/conversations" element={<InboxPage />} />
       <Route path="/my_profile" element={
           <ProtectedRoute>
             <Navbar />
