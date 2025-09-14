@@ -1,0 +1,16 @@
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch request-user-profile
+# Changes to be committed:
+#	modified:   backend/app/controllers/api/v1/users_controller.rb
+#	new file:   backend/app/controllers/follow_requests_controller.rb
+#	new file:   backend/app/models/follow_request.rb
+#	modified:   backend/app/models/user.rb
+#	modified:   backend/config/routes.rb
+#	new file:   backend/db/migrate/20250914155709_create_follow_requests.rb
+#	modified:   backend/db/schema.rb
+#	new file:   backend/test/controllers/follow_requests_controller_test.rb
+#	modified:   frontend/src/components/User/UserCard.jsx
+#

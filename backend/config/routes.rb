@@ -32,7 +32,7 @@ Rails.application.routes.draw do
 
       get 'my_profile', to: 'users#my_profile'
       # config/routes.rb
-      resources :follow_requests, only: %i[create update]
+      resources :follow_requests, only: %i[index create update]
     end
   end
 

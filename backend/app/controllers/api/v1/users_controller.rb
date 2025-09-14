@@ -5,24 +5,20 @@ class Api::V1::UsersController < ApplicationController
   def index
     users = User.where.not(id: current_user.id)
 
-    # Search filter (from main)
     if params[:q].present?
       search_term = "%#{params[:q]}%"
       users = users.where('name LIKE ? OR email LIKE ?', search_term, search_term)
     end
 
-    # filter out users current_user cannot see
-    users = users.select { |user| current_user.can_see?(user) }
-
     render json: users.map { |user|
       block = current_user.blocks.find_by(blocked_id: user.id)
 
-      # Check if a follow request exists (from your branch)
+      # 🔑 Use sender_id / receiver_id (NOT follower_id/followed_id)
       follow_request = FollowRequest.find_by(sender_id: current_user.id, receiver_id: user.id)
 
       user.as_json(only: %i[id name email is_public]).merge(
         is_following: current_user.following.exists?(user.id),
-        request_status: follow_request&.status, # nil, "pending", "accepted", "rejected"
+        request_status: follow_request&.status, # 👈 pending / accepted / rejected
         followers: user.followers.map { |f| { id: f.id, name: f.name } },
         following: user.following.map { |f| { id: f.id, name: f.name } },
         following_count: user.following.count,
@@ -34,8 +30,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def show
-    user = User.find(params[:id])
-    render json: user
+    render json: @user
   end
 
   def followers
@@ -47,20 +42,33 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def follow
-    follow = current_user.active_follows.find_by(followed_id: @user.id)
+    if @user.is_public
+      # Public account → directly follow/unfollow
+      follow = current_user.active_follows.find_by(followed_id: @user.id)
 
-    if follow
-      follow.destroy
-      render json: { message: "You unfollowed #{@user.name}" }, status: :ok
+      if follow
+        follow.destroy
+        render json: { message: "You unfollowed #{@user.name}" }, status: :ok
+      else
+        current_user.active_follows.create(followed_id: @user.id)
+        render json: { message: "You are now following #{@user.name}" }, status: :ok
+      end
     else
-      current_user.active_follows.create(followed_id: @user.id)
-      render json: { message: "You are now following #{@user.name}" }, status: :ok
+      # Private account → send follow request
+      request = FollowRequest.find_or_create_by(sender_id: current_user.id, receiver_id: @user.id)
+      request.update(status: 'pending') unless request.status.present?
+      render json: { message: "Follow request sent to #{@user.name}", request: request }, status: :ok
     end
   end
 
   def unfollow
     follow = current_user.active_follows.find_by(followed_id: @user.id)
     follow.destroy if follow
+
+    # Also handle accepted follow requests for private users
+    request = FollowRequest.find_by(sender_id: current_user.id, receiver_id: @user.id)
+    request.destroy if request&.status == 'accepted'
+
     render json: { message: "You unfollowed #{@user.name}" }
   end
 
@@ -70,7 +78,10 @@ class Api::V1::UsersController < ApplicationController
       current_user: user,
       followers: user.followers,
       following: user.following,
-      blocked_users: user.blocked_users.select('users.*, blocks.id as block_id')
+      blocked_users: user.blocked_users.select('users.*, blocks.id as block_id'),
+      incoming_requests: FollowRequest.where(receiver_id: user.id, status: 'pending'),
+      outgoing_requests: FollowRequest.where(sender_id: user.id, status: 'pending'),
+      follow_requests_count: FollowRequest.where(receiver_id: user.id, status: 'pending').count
     }
   end
 
