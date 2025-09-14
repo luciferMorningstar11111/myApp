@@ -22,9 +22,13 @@ class User < ApplicationRecord
 
   has_many :notifications, dependent: :destroy
 
-  # 👇 Add these associations
+  # Conversations
   has_many :conversation_users, dependent: :destroy
   has_many :conversations, through: :conversation_users
+
+  # Follow Requests (from your branch)
+  has_many :sent_follow_requests, class_name: 'FollowRequest', foreign_key: :sender_id, dependent: :destroy
+  has_many :received_follow_requests, class_name: 'FollowRequest', foreign_key: :receiver_id, dependent: :destroy
 
   # Helper method to check if user is blocked
   def blocked?(user)
@@ -33,21 +37,20 @@ class User < ApplicationRecord
 
   validates :is_public, inclusion: { in: [true, false] }
 
+  # Visibility methods (from main)
+  def can_see?(other_user)
+    return false if blocks.exists?(blocked_id: other_user.id)      # I blocked them
+    return false if other_user.blocks.exists?(blocked_id: self.id) # They blocked me
+    true
+  end
 
- def can_see?(other_user)
-  return false if blocks.exists?(blocked_id: other_user.id)      # I blocked them
-  return false if other_user.blocks.exists?(blocked_id: self.id) # They blocked me
-  true
-end
+  def can_view_posts?(other_user)
+    return true if self == other_user               # Always see own posts
+    return false unless can_see?(other_user)        # Block check first
 
-def can_view_posts?(other_user)
-  return true if self == other_user               # Always see own posts
-  return false unless can_see?(other_user)        # Block check first
+    return true if other_user.is_public?            # Public profile
+    return true if other_user.followers.exists?(id: self.id) # Private but I follow
 
-  return true if other_user.is_public?            # Public profile
-  return true if other_user.followers.exists?(id: self.id) # Private but I follow
-
-  false
-end
-
+    false
+  end
 end

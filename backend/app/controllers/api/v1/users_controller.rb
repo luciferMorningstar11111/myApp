@@ -1,9 +1,11 @@
 class Api::V1::UsersController < ApplicationController
   before_action :authenticate_user!
   before_action :set_user, only: %i[show followers following follow unfollow]
+
   def index
     users = User.where.not(id: current_user.id)
 
+    # Search filter (from main)
     if params[:q].present?
       search_term = "%#{params[:q]}%"
       users = users.where('name LIKE ? OR email LIKE ?', search_term, search_term)
@@ -15,8 +17,12 @@ class Api::V1::UsersController < ApplicationController
     render json: users.map { |user|
       block = current_user.blocks.find_by(blocked_id: user.id)
 
-      user.as_json(only: %i[id name email]).merge(
+      # Check if a follow request exists (from your branch)
+      follow_request = FollowRequest.find_by(sender_id: current_user.id, receiver_id: user.id)
+
+      user.as_json(only: %i[id name email is_public]).merge(
         is_following: current_user.following.exists?(user.id),
+        request_status: follow_request&.status, # nil, "pending", "accepted", "rejected"
         followers: user.followers.map { |f| { id: f.id, name: f.name } },
         following: user.following.map { |f| { id: f.id, name: f.name } },
         following_count: user.following.count,
