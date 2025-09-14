@@ -5,7 +5,7 @@ import {
   unfollowUser,
   blockUser,
   unblockUser,
-  startConversation, // 👈 Import
+  startConversation,
 } from "../../api/user";
 
 const UserCard = ({ user, setUsers }) => {
@@ -19,6 +19,8 @@ const UserCard = ({ user, setUsers }) => {
     is_following,
     is_blocked,
     block_id,
+    is_public,
+    request_status,
   } = user;
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,6 +29,12 @@ const UserCard = ({ user, setUsers }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [blocked, setBlocked] = useState(is_blocked);
   const [blockId, setBlockId] = useState(block_id);
+
+  // Local state for follow/request status to update menu dynamically
+  const [followingStatus, setFollowingStatus] = useState({
+    is_following,
+    request_status,
+  });
 
   // ✅ Start chat handler
   const handleStartChat = async (userId) => {
@@ -39,32 +47,82 @@ const UserCard = ({ user, setUsers }) => {
     }
   };
 
-  const handleFollow = async (id, currentlyFollowing) => {
-    try {
+const handleFollowOrRequest = async (id, currentlyFollowing, isPublic, requestStatus) => {
+  try {
+    if (isPublic) {
+      // Public account → directly follow/unfollow
       if (currentlyFollowing) {
         await unfollowUser(id);
       } else {
         await followUser(id);
       }
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
+
+      setUsers(prevUsers =>
+        prevUsers.map(u =>
           u.id === id
             ? {
                 ...u,
                 followers: currentlyFollowing
-                  ? u.followers.filter((f) => f.id !== currentUserId)
+                  ? u.followers.filter(f => f.id !== currentUserId)
                   : [...u.followers, { id: currentUserId, name: "You" }],
                 is_following: !currentlyFollowing,
               }
             : u
         )
       );
-    } catch (error) {
-      console.error("Error following/unfollowing:", error);
-    }
-    setMenuOpen(false);
-  };
 
+      setFollowingStatus(prev => ({
+        ...prev,
+        is_following: !currentlyFollowing,
+      }));
+    } else {
+      // Private account
+      if (!requestStatus) {
+        // No request → send follow request
+        await followUser(id);
+        setUsers(prevUsers =>
+          prevUsers.map(u =>
+            u.id === id ? { ...u, request_status: "pending" } : u
+          )
+        );
+        setFollowingStatus({ is_following: false, request_status: "pending" });
+      } else if (requestStatus === "accepted") {
+        // Already accepted → unfollow private user
+        await unfollowUser(id);
+        setUsers(prevUsers =>
+          prevUsers.map(u =>
+            u.id === id
+              ? {
+                  ...u,
+                  request_status: null,
+                  followers: u.followers.filter(f => f.id !== currentUserId),
+                  is_following: false,
+                }
+              : u
+          )
+        );
+        setFollowingStatus({ is_following: false, request_status: null });
+      } else if (requestStatus === "pending") {
+        // Optional: Cancel pending request
+        await unfollowUser(id); // assuming backend cancels request
+        setUsers(prevUsers =>
+          prevUsers.map(u =>
+            u.id === id
+              ? { ...u, request_status: null }
+              : u
+          )
+        );
+        setFollowingStatus({ is_following: false, request_status: null });
+      }
+    }
+  } catch (error) {
+    console.error("Error handling follow/request:", error);
+  }
+  setMenuOpen(false);
+};
+
+
+  // ✅ Block/unblock user
   const handleBlock = async (id, currentlyBlocked) => {
     try {
       if (currentlyBlocked) {
@@ -94,6 +152,7 @@ const UserCard = ({ user, setUsers }) => {
     setMenuOpen(false);
   };
 
+  // ✅ Open modal for followers/following
   const openModal = (title, list) => {
     setModalTitle(title);
     setModalList(list);
@@ -139,9 +198,24 @@ const UserCard = ({ user, setUsers }) => {
                 {!blocked && (
                   <li
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleFollow(id, is_following)}
+                    onClick={() =>
+                      handleFollowOrRequest(
+                        id,
+                        followingStatus.is_following,
+                        is_public,
+                        followingStatus.request_status
+                      )
+                    }
                   >
-                    {is_following ? "Unfollow" : "Follow"}
+                    {is_public
+                      ? followingStatus.is_following
+                        ? "Unfollow"
+                        : "Follow"
+                      : followingStatus.request_status === "pending"
+                      ? "Request Sent"
+                      : followingStatus.request_status === "accepted"
+                      ? "Unfollow"
+                      : "Send Request"}
                   </li>
                 )}
                 <li

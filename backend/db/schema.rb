@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_12_111044) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_14_155709) do
   create_table "blocks", force: :cascade do |t|
     t.integer "blocker_id"
     t.integer "blocked_id"
@@ -41,6 +41,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_12_111044) do
   create_table "conversations", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "follow_requests", force: :cascade do |t|
+    t.integer "sender_id", null: false
+    t.integer "receiver_id", null: false
+    t.string "status", default: "pending"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sender_id", "receiver_id"], name: "index_follow_requests_on_sender_id_and_receiver_id", unique: true
   end
 
   create_table "follows", force: :cascade do |t|
